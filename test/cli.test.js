@@ -1,4 +1,4 @@
-var cli = require('../bin/cli'),
+var gscan = require('../lib'),
     theme = {
         results: {
             error: [],
@@ -15,7 +15,7 @@ describe('Exit codes are set', function () {
     });
 
     it('Exit code 0 on no errors and no warnings', function () {
-        cli.setExitCode(theme);
+        gscan.setExitCode(theme);
 
         process.exitCode.should.be.eql(0);
     });
@@ -24,16 +24,16 @@ describe('Exit codes are set', function () {
         theme.results.error = [true];
         theme.results.warning = [true];
 
-        cli.setExitCode(theme);
+        gscan.setExitCode(theme);
 
         process.exitCode.should.be.eql(1);
     });
 
-    it('Exit code 2 on no errors but warnings', function () {
+    it('Exit code 1 on no errors but warnings', function () {
         theme.results.warning = [true];
 
-        cli.setExitCode(theme);
+        gscan.setExitCode(theme);
 
-        process.exitCode.should.be.eql(2);
+        process.exitCode.should.be.eql(1);
     });
 });

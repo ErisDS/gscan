@@ -12,7 +12,7 @@ let levels;
 
 program
     .version(pkgJson.version)
-    .description(pkgJson.description + '. Returns 0 on success, 1 on errors and 2 on warnings.')
+    .description(pkgJson.description)
     .usage('[options] <themePath>')
     .arguments('cmd <themePath>')
     .option('-p, --pre', 'Run a pre-check only')
@@ -66,20 +66,6 @@ function outputResults(theme, options) {
     console.log('\n...checks complete.');
 }
 
-function setExitCode(theme) {
-    process.exitCode = 0;
-
-    if (!_.isEmpty(theme.results.warning)) {
-        process.exitCode = 2;
-    }
-
-    if (!_.isEmpty(theme.results.error)) {
-        process.exitCode = 1;
-    }
-
-    return theme;
-}
-
 function handleRejection(error) {
     process.exitCode = 1;
     console.error(chalk.red(error.toString()));
@@ -102,18 +88,14 @@ if (!program.args.length) {
     if (program.zip) {
         console.log('Checking zip file...');
         gscan.checkZip(themePath, options)
-            .then(setExitCode)
+            .then(gscan.setExitCode)
             .then(theme => outputResults(theme, options))
             .catch(handleRejection);
     } else {
         console.log('Checking directory...');
         gscan.check(themePath, options)
-            .then(setExitCode)
+            .then(gscan.setExitCode)
             .then(theme => outputResults(theme, options))
             .catch(handleRejection);
     }
 }
-
-module.exports = {
-    setExitCode: setExitCode
-};
