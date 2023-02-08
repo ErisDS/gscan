@@ -88,6 +88,48 @@ describe('ast-linter', function () {
         });
     });
 
+    describe('Get Helper Query Extraction', function () {
+        it('extracts a simple get helper query', function () {
+            const localLinter = new ASTLinter();
+            const source = '{{#get "tags"}}{{/get}}';
+            const parsed = ASTLinter.parse(source);
+
+            localLinter.verify({
+                parsed: parsed,
+                rules: [
+                    require('../lib/ast-linter/rules/mark-used-queries')
+                ],
+                source: source,
+                moduleId: 'index.hbs'
+            });
+
+            localLinter.queries.length.should.eql(1);
+            localLinter.queries[0].source.should.eql('get');
+            localLinter.queries[0].query.resource.should.eql('tags');
+            localLinter.queries[0].query.options.should.eql({});
+        });
+
+        it('extracts an advanced get helper query', function () {
+            const localLinter = new ASTLinter();
+            const source = '{{#get "posts" filter="tags:foo" include="tags, authors" limit="3" as |favourites|}}{{/get}}';
+            const parsed = ASTLinter.parse(source);
+
+            localLinter.verify({
+                parsed: parsed,
+                rules: [
+                    require('../lib/ast-linter/rules/mark-used-queries')
+                ],
+                source: source,
+                moduleId: 'index.hbs'
+            });
+
+            localLinter.queries.length.should.eql(1);
+            localLinter.queries[0].source.should.eql('get');
+            localLinter.queries[0].query.resource.should.eql('posts');
+            localLinter.queries[0].query.options.should.eql({limit: '3', include: 'tags, authors', filter: 'tags:foo'});
+        });
+    });
+
     describe('Inline partial extraction', function () {
         it('extracts a simple inline partial', function () {
             const localLinter = new ASTLinter();
